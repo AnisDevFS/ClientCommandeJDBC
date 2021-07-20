@@ -13,18 +13,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+
 /**
- * Servlet implementation class Supprime
+ * Servlet implementation class Supprimer
  */
 @WebServlet("/supprime")
-public class Supprime extends HttpServlet {
+public class Supprimer extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+
     /**
-     * @see HttpServlet#HttpServlet()
+     * Default constructor. 
      */
-    public Supprime() {
-        super();
+    public Supprimer() {
         // TODO Auto-generated constructor stub
     }
 
@@ -32,43 +32,41 @@ public class Supprime extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-
-		HttpSession session = request.getSession( true );
-		String email = (String) session.getAttribute("email");
-		String nom = (String) session.getAttribute("nom");
+		String idCmdString = request.getParameter("idCmd");
+		int idCmd = Integer.parseInt(idCmdString);
+		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		String url = "jdbc:mysql://localhost:3306/login";
+		String url = "jdbc:mysql://localhost:3306/clientcommande";
 		String loginDB = "root";
 		String passwordDB = "";
 		
 		try (Connection cnx = DriverManager.getConnection(url, loginDB, passwordDB)) {
 
-//			String strSqlUpdate = "INSERT INTO users ( Nom,  email, password) VALUES ('"+nom+"', '"+email+"', '"+password+"');";
-			String strSqldelete = "DELETE FROM users WHERE email='"+email+"' ;";
+			String strSqldelete = "DELETE FROM cmd WHERE id_commande="+idCmd+" ;";
 			try(	Statement statement = cnx.createStatement() ) {
 				statement.executeUpdate(strSqldelete);
-				session.setAttribute( "errorLogin", "" );
-				System.out.println(nom +" est bien supprimé");
-				request.getRequestDispatcher( "/Login.jsp" ).forward( request, response );
+//				request.getRequestDispatcher( "/WEB-INF/ConnectedAndCmds.jsp" ).forward( request, response );
+//				response.sendRedirect("supprime");
+				Login log = new Login();
+				
+				log.doPost(request, response);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}	
-	
-	
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }

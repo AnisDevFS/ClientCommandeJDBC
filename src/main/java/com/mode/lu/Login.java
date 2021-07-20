@@ -6,6 +6,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import com.mode.entities.Commande;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -32,11 +35,21 @@ public class Login extends HttpServlet {
 
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		String nom = request.getParameter( "nom" );
-		String password = request.getParameter( "password" );
-
 		HttpSession session = request.getSession( true );
+		String nom = ""; String password = "";
+		
+		if (request.getParameter( "nom" ) == null) 
+			nom = (String) session.getAttribute("nom");
+		else 
+			nom = request.getParameter( "nom" );
+		
+		if (request.getParameter( "password" ) == null) 
+			password = (String) session.getAttribute("password");
+		else 
+			password = request.getParameter( "password" );
+		System.out.println(nom + password);
+		int idClient = 0;
+		ArrayList<Commande> cmds = new ArrayList<Commande>();
 		boolean Goodcnx = false;
 		String errorLogin = "";
 
@@ -57,7 +70,7 @@ public class Login extends HttpServlet {
 				ResultSet rs = statement.executeQuery(strSqlSelect);
 				while (rs.next()) {
 
-					String rsId = rs.getString("id_client");
+					int rsId = rs.getInt("id_client");
 					String rsPassword = rs.getString("password");
 					String rsNom = rs.getString("nom");
 					String rsPrenom = rs.getString("prenom");
@@ -68,15 +81,31 @@ public class Login extends HttpServlet {
 						session.setAttribute( "admin", rsAdmin );
 						session.setAttribute( "password", rsPassword );
 						session.setAttribute( "id", rsId );
+						idClient = rsId;
 						session.setAttribute( "nom", rsNom );
 						session.setAttribute( "age", rsAge );
 						session.setAttribute( "prenom", rsPrenom );
 						session.setAttribute( "msgInfo", "Je viens juste de me connecter" );
 						Goodcnx = true;
-						request.getRequestDispatcher( "/WEB-INF/ConnectedAndCmds.jsp" ).forward( request, response );
+						break;
 					}
 					
 				}
+			}
+			if (Goodcnx) {
+				try( Statement statement1 = cnx.createStatement() ) {
+					String sqlCmds = "SELECT * FROM cmd WHERE id_client = "+idClient ;
+					ResultSet rs1 = statement1.executeQuery(sqlCmds);
+					while (rs1.next()) {
+						
+						Commande c = new Commande(rs1.getInt("id_commande"), rs1.getInt("id_client"), rs1.getString("produit"), rs1.getInt("nombre"), rs1.getInt("prix"), rs1.getDate("date"));
+						
+						cmds.add(c);
+						
+					}
+					session.setAttribute( "cmds", cmds );
+				}
+				request.getRequestDispatcher( "/WEB-INF/ConnectedAndCmds.jsp" ).forward( request, response );
 			}
 			
 		} catch (SQLException e) {
@@ -87,6 +116,7 @@ public class Login extends HttpServlet {
 			session.setAttribute( "errorLogin", errorLogin );
 			doGet(request, response);
 		}
+
 					
 		
 	}

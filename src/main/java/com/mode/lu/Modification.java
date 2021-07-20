@@ -18,19 +18,19 @@ import jakarta.servlet.http.HttpSession;
 
 
 
-@WebServlet("/inscription")
-public class Inscription extends HttpServlet {
+@WebServlet("/modif")
+public class Modification extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 
-    public Inscription() {
+    public Modification() {
         super();
     }
 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		request.getRequestDispatcher( "/WEB-INF/Inscription.jsp" ).forward( request, response );
+		request.getRequestDispatcher( "/WEB-INF/modif.jsp" ).forward( request, response );
 	}
 
 
@@ -41,10 +41,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 		String password = request.getParameter( "password" );
 		String age = request.getParameter( "age" );
 		int ageInt = Integer.parseInt(age);
-		String type = request.getParameter( "type" );
+		
 		
 		HttpSession session = request.getSession( true );
-
+		int idClient = (int) session.getAttribute("id");
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -56,20 +56,16 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 		
 		try (Connection cnx = DriverManager.getConnection(url, loginDB, passwordDB)) {
 
-			String strSqlUpdate = "INSERT INTO client ( admin, nom,  prenom, age, password) VALUES ('"+type+"', '"+nom+"', '"+prenom+"' ,"+age+" , '"+password+"');";
-
+			String strSqlUpdate = "UPDATE client SET nom='"+nom+"', prenom = '"+prenom+"', age = "+ ageInt +" , password = '"+password+"' WHERE client.id_client =" +idClient;
 			try(	Statement statement = cnx.createStatement() ) {
 				statement.executeUpdate(strSqlUpdate);
 				session.setAttribute( "nom", nom );
 				session.setAttribute( "prenom", prenom );
 				session.setAttribute( "password", password );
 				session.setAttribute( "age", ageInt );
-				session.setAttribute( "type", type );
-				ArrayList<Commande> cmds = new ArrayList<Commande>();
-				session.setAttribute( "cmds", cmds );
-				session.setAttribute( "msgInfo", "Je viens juste de m inscrire" );
-//				int id = statement.executeUpdate(strSqlUpdate, Statement.RETURN_GENERATED_KEYS);
-				System.out.println(nom +" est bien ajouté avec l'id ");
+
+				session.setAttribute( "msgInfo", "Je viens juste de modifier mes coordonnées" );
+
 				request.getRequestDispatcher( "/WEB-INF/ConnectedAndCmds.jsp" ).forward( request, response );
 				}
 			} catch (SQLException e) {
