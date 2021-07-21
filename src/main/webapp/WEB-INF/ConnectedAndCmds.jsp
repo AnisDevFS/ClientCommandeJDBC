@@ -25,6 +25,14 @@
 		<h3 class="text-danger">${ msgInfo }</h3>
 		<br>
 		
+		<c:if test="${empty cmds }">
+			
+			<h2 class="text-danger">Ce client est pauvre il n'a jamais fait de commandes</h2>
+			
+		</c:if>
+		
+		<c:if test="${cmds.size() > 0 }">
+		
 		<table>
 		    <thead>
 		        <tr>
@@ -36,9 +44,33 @@
 		        </tr>
 		    </thead>
 		    <tbody>
+		    <c:set var="total" value="0" />
+				<c:forEach var= "cmd" items = "${cmds}">
+				<c:set var="total" value="${ total + cmd.prix }" />
+					<c:if test="${cmd.prix > 900}">
+						<tr><td> <c:out value = "${cmd.produit }"/> </td>
+						<td> <c:out value = "${cmd.nombre }"/> </td>
+						<td> <c:out value = "${cmd.prix }"/> </td>
+						<td> <c:out value = "${cmd.date }"/> </td>
+						<td><a class="btn btn-danger" href="supprime?idCmd=${cmd.id_commande }"><i class="far fa-trash-alt"></i></a></td></tr>
+					</c:if>
 
-
-<%-- 		<%
+				</c:forEach>
+		
+			</tbody>
+		</table>
+		</c:if>
+		
+		<h3 class="text-primary">Total = <c:out value="${total }"></c:out></h3>
+		
+		<br>
+		
+		
+		
+		
+		
+		
+		<%-- 		<%
 			ArrayList<Commande> cmds = (ArrayList<Commande>) session.getAttribute("cmds");
 		
 			for (Commande c : cmds) {
@@ -50,40 +82,30 @@
 			}
 		%> --%>
 		<!-- version JSTL -->
-		<c:forEach var= "cmd" items = "${cmds}">
-			
-				<tr><td> <c:out value = "${cmd.produit }"/> </td>
-				<td> <c:out value = "${cmd.nombre }"/> </td>
-				<td> <c:out value = "${cmd.prix }"/> </td>
-				<td> <c:out value = "${cmd.date }"/> </td>
-				<td><a class="btn btn-danger" href="supprime?idCmd=${cmd.id_commande }"><i class="far fa-trash-alt"></i></a></td></tr>
-			
-		</c:forEach>
 		
-			</tbody>
-		</table>
-		<br>
-		<a class="btn btn-info" href="modif">Modifier mes coordonnées</a><br><br>
+		<a class="btn btn-info" href="modif">Modifier mes coordonnées</a>
+		<a class="btn btn-warning" href="clients">Afficher autres clients</a>
+		<br><br>
  		  <c:set var = "cmdss" scope = "session" value = "${cmds}"/>
  			  <c:forEach var = "i" begin = "1" end = "5">
 		         Item <c:out value = "${i}"/>
 		      </c:forEach>
-		      <c:forEach var= "cmd" items = "${cmds}">
+<%-- 		      <c:forEach var= "cmd" items = "${cmds}">
 		          <c:out value = "${cmd.produit }"/>
 		          <c:out value = "${cmd.nombre }"/>
 		          <br><small>pop</small>
-		      </c:forEach>
+		      </c:forEach> --%>
 		      <c:out value = "${cmdss.size() }"/>
 		      <c:out value = "${nom }"/>
 	</div>
 	
-	     <c:set var = "salary" scope = "session" value = "2000"/>
+	  <c:set var = "salary" scope = "session" value = "2000"/>
 	     
       <c:if test = "${salary >= 10000}">
          <h2>My salary is:  <c:out value = "${salary}" default="inferieur à 2000€"/><h2>
       </c:if>
  
-	<c:choose>
+<%-- 	<c:choose>
 	  <c:when test="${'Mr' == 'Mrg'}">
 	    <p>Bonjour Monsieur</p>
 	  </c:when>
@@ -96,7 +118,7 @@
 	  <c:otherwise>
 	    Bonjour
 	  </c:otherwise>
-	</c:choose>
+	</c:choose> --%>
 
 
 </body>
